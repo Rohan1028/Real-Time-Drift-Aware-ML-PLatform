@@ -1,0 +1,37 @@
+﻿name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Poetry
+        run: pip install poetry
+      - name: Install deps
+        run: poetry install
+      - name: Lint
+        run: poetry run ruff check . && poetry run black --check .
+      - name: Tests
+        run: poetry run pytest -q
+      - name: Train model
+        run: poetry run python services/model_training/train.py
+      - name: Model Gate
+        run: poetry run python services/model_training/evaluate.py
+      - name: Build serving image
+        run: docker build -t test-serving -f services/serving/Dockerfile .
+
+  smoke:
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+      - name: Docker Compose smoke (config validation)
+        run: docker compose -f infra/docker/docker-compose.yaml config

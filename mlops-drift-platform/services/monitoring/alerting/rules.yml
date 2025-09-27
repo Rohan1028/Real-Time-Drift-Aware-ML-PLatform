@@ -1,0 +1,17 @@
+﻿groups:
+  - name: inference
+    rules:
+      - alert: CanariesFailing
+        expr: rate(serving_app_request_exceptions_total{model_variant="canary"}[5m]) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Canary error rate exceeded 1%"
+      - alert: LatencyDegraded
+        expr: histogram_quantile(0.95, sum(rate(serving_app_request_latency_seconds_bucket[5m])) by (le)) > 0.2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "p95 latency breached SLO"

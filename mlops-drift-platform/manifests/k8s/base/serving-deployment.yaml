@@ -1,0 +1,48 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serving
+  labels:
+    app: serving
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: serving
+  template:
+    metadata:
+      labels:
+        app: serving
+    spec:
+      containers:
+        - name: serving
+          image: ghcr.io/example/mlops-drift-serving:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: serving-env
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/config
+      volumes:
+        - name: config
+          configMap:
+            name: serving-config

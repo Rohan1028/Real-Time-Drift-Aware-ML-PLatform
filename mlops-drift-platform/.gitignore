@@ -1,0 +1,16 @@
+﻿.venv/
+__pycache__/
+*.pyc
+poetry.lock
+.env
+.mypy_cache/
+.gradle/
+.idea/
+.vscode/
+.DS_Store
+*.log
+services/monitoring/drift/reports/*.html
+services/monitoring/drift/reports/*.json
+
+# pytest
+.pytest_cache/

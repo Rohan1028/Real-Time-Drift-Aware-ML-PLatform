@@ -1,0 +1,41 @@
+﻿{
+  "title": "Drift Overview",
+  "uid": "drift-overview",
+  "schemaVersion": 38,
+  "panels": [
+    {
+      "type": "table",
+      "title": "Feature Drift Scores",
+      "datasource": {"type": "prometheus", "uid": "prom"},
+      "targets": [
+        {
+          "expr": "drift_feature_psi",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "orange", "value": 0.1},
+              {"color": "red", "value": 0.3}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "title": "Latest Evidently Report",
+      "options": {
+        "mode": "html",
+        "content": "<a href=\"http://localhost:3000/d/evidently\" target=\"_blank\">Open HTML report</a> or check repo under services/monitoring/drift/reports/"
+      }
+    }
+  ],
+  "time": {"from": "now-24h", "to": "now"},
+  "refresh": "1m",
+  "version": 1
+}

@@ -1,0 +1,32 @@
+﻿apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feature-store
+  labels:
+    app: feature-store
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: feature-store
+  template:
+    metadata:
+      labels:
+        app: feature-store
+    spec:
+      containers:
+        - name: feature-service
+          image: ghcr.io/example/mlops-drift-feature:latest
+          command: ["python", "services/feature_service/ingestion/stream_job.py"]
+          envFrom:
+            - secretRef:
+                name: feature-store-env
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+          livenessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
