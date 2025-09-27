@@ -1,0 +1,37 @@
+﻿{
+  "$schema": "https://grafana.com/schemas/dashboard/v1.json",
+  "title": "Platform Overview",
+  "uid": "platform-overview",
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Canary Traffic Share",
+      "targets": [
+        {
+          "expr": "sum(rate(serving_app_requests_total{model_variant=\"canary\"}[5m])) / sum(rate(serving_app_requests_total[5m]))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "orange", "value": 0.4},
+              {"color": "red", "value": 0.6}
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "text",
+      "title": "Latest Drift Report",
+      "options": {
+        "mode": "html",
+        "content": "Point to services/monitoring/drift/reports/latest.html"
+      }
+    }
+  ]
+}

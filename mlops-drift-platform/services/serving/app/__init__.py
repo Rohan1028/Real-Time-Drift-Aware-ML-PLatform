@@ -1,0 +1,1 @@
+﻿"""Serve app entrypoint."""

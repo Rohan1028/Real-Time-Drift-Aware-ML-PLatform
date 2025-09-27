@@ -1,0 +1,30 @@
+﻿{
+  "$schema": "https://grafana.com/schemas/dashboard/v1.json",
+  "title": "Inference SLO Dashboard",
+  "uid": "infra-inference-slo",
+  "editable": false,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "p95 Latency",
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(serving_app_request_latency_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests by Variant",
+      "targets": [
+        {
+          "expr": "sum(rate(serving_app_requests_total[5m])) by (model_variant)",
+          "legendFormat": "{{model_variant}}"
+        }
+      ]
+    }
+  ],
+  "time": {"from": "now-6h", "to": "now"},
+  "refresh": "30s"
+}

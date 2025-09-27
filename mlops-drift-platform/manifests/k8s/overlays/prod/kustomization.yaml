@@ -1,0 +1,10 @@
+﻿apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base/serving-deployment.yaml
+  - ../../base/feature-store-deployment.yaml
+  - ../../base/monitoring-cronjob.yaml
+  - hpa.yaml
+namePrefix: prod-
+commonLabels:
+  env: prod

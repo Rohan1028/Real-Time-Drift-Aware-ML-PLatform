@@ -1,0 +1,18 @@
+﻿apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: drift-monitor
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: drift
+              image: ghcr.io/example/mlops-drift-monitoring:latest
+              command: ["python", "services/monitoring/drift/run_evidently.py"]
+              envFrom:
+                - secretRef:
+                    name: monitoring-env

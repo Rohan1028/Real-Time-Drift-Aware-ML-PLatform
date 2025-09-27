@@ -1,0 +1,49 @@
+﻿{
+  "annotations": {"list": []},
+  "editable": true,
+  "id": null,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Inference p95 Latency",
+      "datasource": {"type": "prometheus", "uid": "prom"},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(serving_app_request_latency_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95 latency"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Request Rate by Variant",
+      "datasource": {"type": "prometheus", "uid": "prom"},
+      "targets": [
+        {
+          "expr": "sum(rate(serving_app_requests_total[5m])) by (model_variant)",
+          "legendFormat": "{{model_variant}}"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Error Rate (5m)",
+      "datasource": {"type": "prometheus", "uid": "prom"},
+      "targets": [
+        {
+          "expr": "sum(rate(serving_app_request_exceptions_total[5m])) / sum(rate(serving_app_requests_total[5m]))",
+          "legendFormat": "error_rate"
+        }
+      ],
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"]}, "orientation": "horizontal"},
+      "fieldConfig": {"defaults": {"unit": "percentunit", "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "orange", "value": 0.01}, {"color": "red", "value": 0.05}]}}}
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 38,
+  "templating": {"list": []},
+  "time": {"from": "now-6h", "to": "now"},
+  "title": "Inference SLO Dashboard",
+  "uid": "inference-slo",
+  "version": 1
+}
