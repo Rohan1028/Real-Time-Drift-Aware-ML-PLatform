@@ -2,7 +2,7 @@
 
 ![CI](https://img.shields.io/github/actions/workflow/status/example/mlops-drift-platform/ci.yml?label=CI&logo=github) ![Code style: ruff+black](https://img.shields.io/badge/style-ruff%2Bblack-blue) ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
-> A runnable reference monorepo showcasing a real-time drift-aware ML platform for fast recruiter review. Local-first, production-inspired, cloud-ready stubs.
+> A runnable reference monorepo showcasing a real-time drift-aware ML platform. Local-first, production-inspired, cloud-ready stubs.
 
 ![Architecture](diagrams/architecture.png)
 
@@ -123,7 +123,7 @@ print(resp.json())
 - **What about secrets?** `.env.example` documents required vars; repo never stores credentials. CI includes secret scanning hooks.
 - **Production ready?** This is a local reference architecture; cloud manifests are illustrative only.
 
-## Recruiter Quick Tour
+## Quick Tour
 
 - Architecture diagram – `diagrams/architecture.png`
 - Core code entry points – training (`services/model_training/train.py`), serving (`services/serving/app/main.py`), drift job (`services/monitoring/drift/run_evidently.py`)
