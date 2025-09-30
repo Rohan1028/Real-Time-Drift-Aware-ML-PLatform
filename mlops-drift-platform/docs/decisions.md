@@ -21,7 +21,7 @@
 ## ADR-004: MLflow Registry
 - **Decision**: Promote models via MLflow Model Registry.
 - **Status**: Accepted.
-- **Context**: Simple and well understood for recruiters.
+- **Context**: Simple and widely adopted across ML teams.
 - **Consequences**: Registry served from same container; future stateful storage handled via Terraform stubs.
 
 ## ADR-005: Evidently for Drift Detection
@@ -33,5 +33,5 @@
 ## ADR-006: GitOps with Argo CD
 - **Decision**: Provide Kustomize bases & Argo Applications.
 - **Status**: Proposed (reference only).
-- **Context**: Recruiters expect to see GitOps ready manifests even if demo is Docker Compose.
+- **Context**: Aligns with GitOps practices even when the demo runs via Docker Compose.
 - **Consequences**: Must document non-functional nature; secrets/credentials omitted.
