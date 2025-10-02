@@ -1,0 +1,252 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/**'
+      - 'infra/**'
+      - 'scripts/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+env:
+  AWS_REGION: us-east-1
+  TERRAFORM_VERSION: 1.6.0
+
+jobs:
+  # Infrastructure Deployment
+  deploy-infrastructure:
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'dev' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Terraform Format Check
+        run: terraform fmt -check
+        working-directory: infra/terraform
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: infra/terraform
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: infra/terraform
+
+      - name: Terraform Plan
+        run: terraform plan -var-file=env/${{ github.event.inputs.environment || 'dev' }}.auto.tfvars
+        working-directory: infra/terraform
+
+      - name: Terraform Apply
+        if: github.event_name == 'workflow_dispatch'
+        run: terraform apply -auto-approve -var-file=env/${{ github.event.inputs.environment || 'dev' }}.auto.tfvars
+        working-directory: infra/terraform
+
+      - name: Get Terraform Outputs
+        if: github.event_name == 'workflow_dispatch'
+        id: terraform-outputs
+        run: |
+          echo "load_balancer_dns=$(terraform output -raw load_balancer_dns_name)" >> $GITHUB_OUTPUT
+          echo "deployment_bucket=$(terraform output -raw deployment_bucket_name)" >> $GITHUB_OUTPUT
+          echo "codedeploy_app=$(terraform output -raw codedeploy_application_name)" >> $GITHUB_OUTPUT
+          echo "codedeploy_group=$(terraform output -raw codedeploy_deployment_group_name)" >> $GITHUB_OUTPUT
+        working-directory: infra/terraform
+
+  # Build and Push Docker Images
+  build-images:
+    needs: deploy-infrastructure
+    runs-on: ubuntu-latest
+    if: always() && (needs.deploy-infrastructure.result == 'success' || github.event_name == 'workflow_dispatch')
+    
+    strategy:
+      matrix:
+        service: [serving, monitoring]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: mlops-${{ matrix.service }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f services/${{ matrix.service }}/Dockerfile .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+  # Create Deployment Package
+  create-deployment-package:
+    needs: [deploy-infrastructure, build-images]
+    runs-on: ubuntu-latest
+    if: always() && needs.deploy-infrastructure.result == 'success'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get Terraform Outputs
+        id: terraform-outputs
+        run: |
+          cd infra/terraform
+          terraform init
+          echo "deployment_bucket=$(terraform output -raw deployment_bucket_name)" >> $GITHUB_OUTPUT
+          echo "codedeploy_app=$(terraform output -raw codedeploy_application_name)" >> $GITHUB_OUTPUT
+          echo "codedeploy_group=$(terraform output -raw codedeploy_deployment_group_name)" >> $GITHUB_OUTPUT
+
+      - name: Create deployment package
+        run: |
+          # Create deployment directory
+          mkdir -p deployment-package
+          
+          # Copy application files
+          cp -r services deployment-package/
+          cp -r scripts deployment-package/
+          cp -r infra deployment-package/
+          cp pyproject.toml poetry.lock deployment-package/ || true
+          
+          # Copy deployment scripts
+          cp -r infra/terraform/modules/ec2/deploy/* deployment-package/
+          
+          # Create deployment archive
+          cd deployment-package
+          zip -r ../deployment-package.zip .
+          cd ..
+
+      - name: Upload deployment package to S3
+        run: |
+          aws s3 cp deployment-package.zip s3://${{ steps.terraform-outputs.outputs.deployment_bucket }}/deployments/${{ github.sha }}.zip
+
+  # Deploy Application
+  deploy-application:
+    needs: [deploy-infrastructure, create-deployment-package]
+    runs-on: ubuntu-latest
+    if: always() && needs.deploy-infrastructure.result == 'success'
+    
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get Terraform Outputs
+        id: terraform-outputs
+        run: |
+          cd infra/terraform
+          terraform init
+          echo "deployment_bucket=$(terraform output -raw deployment_bucket_name)" >> $GITHUB_OUTPUT
+          echo "codedeploy_app=$(terraform output -raw codedeploy_application_name)" >> $GITHUB_OUTPUT
+          echo "codedeploy_group=$(terraform output -raw codedeploy_deployment_group_name)" >> $GITHUB_OUTPUT
+          echo "load_balancer_dns=$(terraform output -raw load_balancer_dns_name)" >> $GITHUB_OUTPUT
+
+      - name: Deploy to EC2 instances
+        run: |
+          DEPLOYMENT_ID=$(aws deploy create-deployment \
+            --application-name ${{ steps.terraform-outputs.outputs.codedeploy_app }} \
+            --deployment-group-name ${{ steps.terraform-outputs.outputs.codedeploy_group }} \
+            --s3-location bucket=${{ steps.terraform-outputs.outputs.deployment_bucket }},key=deployments/${{ github.sha }}.zip,bundleType=zip \
+            --description "Deployment from GitHub Actions - ${{ github.sha }}" \
+            --query 'deploymentId' \
+            --output text)
+          
+          echo "Deployment ID: $DEPLOYMENT_ID"
+          
+          # Wait for deployment to complete
+          aws deploy wait deployment-successful --deployment-id $DEPLOYMENT_ID
+          
+          echo "Deployment completed successfully"
+
+      - name: Run smoke tests
+        run: |
+          # Wait for services to be ready
+          sleep 60
+          
+          # Test API endpoint
+          API_URL="https://${{ steps.terraform-outputs.outputs.load_balancer_dns }}"
+          
+          # Health check
+          curl -f "$API_URL/health" || exit 1
+          
+          # Prediction test
+          curl -f -X POST "$API_URL/predict" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "user_id": "test-user",
+              "event": {
+                "transaction_amount": 100.0,
+                "country": "US",
+                "device": "web",
+                "event_ts": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
+              }
+            }' || exit 1
+          
+          echo "Smoke tests passed successfully"
+
+  # Notify deployment status
+  notify:
+    needs: [deploy-infrastructure, deploy-application]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Notify deployment status
+        run: |
+          if [ "${{ needs.deploy-application.result }}" == "success" ]; then
+            echo "✅ Deployment successful!"
+            echo "🌐 API URL: https://$(cd infra/terraform && terraform output -raw load_balancer_dns_name)"
+            echo "📊 MLflow URL: https://$(cd infra/terraform && terraform output -raw load_balancer_dns_name)/mlflow"
+            echo "📈 Grafana URL: https://$(cd infra/terraform && terraform output -raw load_balancer_dns_name)/grafana"
+          else
+            echo "❌ Deployment failed!"
+            exit 1
+          fi
+
+
+

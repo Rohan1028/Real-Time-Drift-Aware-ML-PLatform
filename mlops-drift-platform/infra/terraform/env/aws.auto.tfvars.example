@@ -1,4 +1,0 @@
-﻿project = "mlops-demo"
-region  = "us-east-1"
-ml_bucket_name = "mlops-demo-artifacts"
-enable_gcp = false
