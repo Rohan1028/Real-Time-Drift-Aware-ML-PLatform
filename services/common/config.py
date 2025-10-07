@@ -1,14 +1,16 @@
-﻿from functools import lru_cache
+from functools import lru_cache
 
 from pydantic import Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     env: str = Field(default="local", alias="ENV")
     kafka_brokers: str = Field(default="localhost:9092", alias="REDPANDA_BROKERS")
     event_topic: str = Field(default="transactions", alias="EVENT_TOPIC")
-    feast_repo_path: str = Field(default="services/feature_service/feast_repo", alias="FEAST_REPO_PATH")
+    feast_repo_path: str = Field(
+        default="services/feature_service/feast_repo", alias="FEAST_REPO_PATH"
+    )
     mlflow_tracking_uri: str = Field(default="http://localhost:5000", alias="MLFLOW_TRACKING_URI")
     mlflow_registry_uri: str = Field(default="http://localhost:5000", alias="MLFLOW_REGISTRY_URI")
     minio_endpoint: str = Field(default="http://localhost:9000", alias="MINIO_ENDPOINT")
@@ -27,10 +29,11 @@ class Settings(BaseSettings):
     prometheus_endpoint: str = Field(default="http://localhost:9090", alias="PROMETHEUS_ENDPOINT")
     otlp_endpoint: str = Field(default="http://localhost:4317", alias="OTLP_ENDPOINT")
 
-    model_config = {
-        "env_file": ".env",
-        "env_file_encoding": "utf-8",
-    }
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
 
 @lru_cache(maxsize=1)

@@ -18,11 +18,15 @@ jobs:
       - name: Install deps
         run: poetry install
       - name: Lint
-        run: poetry run ruff check . && poetry run black --check .
-      - name: Tests
-        run: poetry run pytest -q
+        run: make lint
+      - name: Unit tests
+        run: make test-unit
+      - name: Integration tests
+        run: make test-integration
       - name: Train model
-        run: poetry run python services/model_training/train.py
+        run: make train
+      - name: Regression gates
+        run: make test-regression
       - name: Model Gate
         run: poetry run python services/model_training/evaluate.py
       - name: Build serving image

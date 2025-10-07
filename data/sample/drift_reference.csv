@@ -1,0 +1,6 @@
+event_id,user_id,transaction_amount,country,device,event_ts,label
+ref-001,user-1,80.5,US,ios,2024-01-01T00:00:00Z,0
+ref-002,user-2,45.2,GB,android,2024-01-01T00:05:00Z,0
+ref-003,user-3,110.0,DE,web,2024-01-01T00:10:00Z,1
+ref-004,user-4,65.3,FR,ios,2024-01-01T00:15:00Z,0
+ref-005,user-5,72.8,CA,android,2024-01-01T00:20:00Z,0

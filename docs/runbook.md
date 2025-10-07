@@ -35,13 +35,20 @@
 - Validate accuracy metrics and latency.
 - If acceptable, update `CANARY_SPLIT` in deployment env and redeploy via `make serve`.
 
-## 6. Post-Incident
+## 6. Regression Checks
+
+- `make test-unit` for fast signal on canary/shadow paths.
+- `make test-integration` to replay synthetic events through the inference surface.
+- After `make train`, run `make test-regression` to generate Evidently reports with fixture data and enforce metric thresholds (`services/model_training/validate_metrics.py`).
+- Drift fixtures live under `data/sample/drift_reference.csv` and `data/sample/drift_current.csv`; override via `DRIFT_REFERENCE_PATH` / `DRIFT_CURRENT_PATH`.
+
+## 7. Post-Incident
 
 - Record timeline in `docs/incidents/YYYY-MM-DD.md` (create as needed).
 - File Jira ticket for follow-up automation.
 - Add retro notes to `docs/decisions.md` if architecture changes.
 
-## 7. Contacts
+## 8. Contacts
 
 | Role        | Primary             | Backup           |
 |-------------|---------------------|------------------|

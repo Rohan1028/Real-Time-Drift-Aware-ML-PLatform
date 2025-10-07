@@ -86,6 +86,13 @@ Stop everything with `make compose-down`.
 - `nightly-drift.yml` runs Evidently drift job on schedule and uploads HTML artifacts.
 - `scripts/load_test_locustfile.py` hits `/predict` to validate throughput (target 2 k rps; local default lower).
 
+## Testing & Regression Gates
+
+- `make test-unit` exercises deterministic unit tests (canary logic, feature fallbacks, drift helpers).
+- `make test-integration` stands up an in-process inference flow using synthetic events and Prometheus metrics.
+- `make test-regression` runs marked regression tests plus drift and metric validation commands (expects `make train` to have produced `latest_metrics.json`).
+- Sample drift fixtures live at `data/sample/drift_reference.csv` and `data/sample/drift_current.csv`; override paths with `DRIFT_REFERENCE_PATH` / `DRIFT_CURRENT_PATH`.
+
 ## API Examples
 
 ### curl

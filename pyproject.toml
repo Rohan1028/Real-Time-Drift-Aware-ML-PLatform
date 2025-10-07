@@ -70,6 +70,10 @@ ignore = ["E203", "E501"]
 [tool.pytest.ini_options]
 testpaths = ["services", "scripts"]
 addopts = "-q --strict-markers"
+markers = [
+  "integration: integration tests that exercise multiple services",
+  "regression: automated regression gates for drift and model metrics",
+]
 
 [tool.mypy]
 python_version = "3.11"

@@ -5,7 +5,7 @@ COMPOSE_FILE ?= infra/docker/docker-compose.yaml
 
 export PYTHONDONTWRITEBYTECODE = 1
 
-.PHONY: help bootstrap compose-up compose-down data feast-apply materialize train register serve producer drift-report load-test smoke lint test fmt fmt-check
+.PHONY: help bootstrap compose-up compose-down data feast-apply materialize train register serve producer drift-report load-test smoke lint test test-unit test-integration test-regression fmt fmt-check
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -56,8 +56,20 @@ fmt: ## Format code with black
 
 fmt-check: lint ## Alias for lint
 
-test: ## Execute unit tests
+test: ## Execute full test suite
 	$(POETRY) run pytest -q
+
+test-unit: ## Run fast unit tests only
+	$(POETRY) run pytest -q -m "not integration and not regression"
+
+test-integration: ## Run integration test suite
+	$(POETRY) run pytest -q -m integration
+
+test-regression: ## Run regression gates (drift + metrics)
+	$(POETRY) run pytest -q -m regression
+	DRIFT_REFERENCE_PATH=data/sample/drift_reference.csv DRIFT_CURRENT_PATH=data/sample/drift_current.csv DRIFT_FAIL_ON_DATASET=false DRIFT_P_VALUE_THRESHOLD=0.0 $(POETRY) run $(PYTHON) services/monitoring/drift/run_evidently.py
+	DRIFT_REFERENCE_PATH=data/sample/drift_reference.csv DRIFT_CURRENT_PATH=data/sample/drift_current.csv DRIFT_FAIL_ON_DATASET=false DRIFT_P_VALUE_THRESHOLD=0.0 $(POETRY) run $(PYTHON) services/monitoring/drift/validate_report.py
+	$(POETRY) run $(PYTHON) services/model_training/validate_metrics.py
 
 smoke: ## End-to-end health smoke
 	bash scripts/smoke_test.sh
