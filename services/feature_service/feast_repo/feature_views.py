@@ -1,7 +1,8 @@
-from data_sources import events_source
-from entities import user
 from feast import FeatureView, Field
 from feast.types import Float32, Int64
+
+from .data_sources import events_source
+from .entities import user
 
 transaction_features = FeatureView(
     name="transaction_features",

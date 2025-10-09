@@ -136,11 +136,19 @@ else:
     def init_fallback_service() -> InferenceService:
         global _fallback_service
         if _fallback_service is None:
-            _fallback_service = InferenceService()
-            _set_service_provider(lambda: _fallback_service)
+            _fallback_service = InferenceDeployment()
         return _fallback_service
 
     def deployment():  # pragma: no cover - not used without ray
         raise RuntimeError(
             "Ray Serve is disabled on this platform. Set ENABLE_RAY_SERVE=1 to enable."
         )
+
+    class InferenceDeployment(InferenceService):
+        func_or_class: type[InferenceDeployment]
+
+        def __init__(self) -> None:
+            super().__init__()
+            _set_service_provider(lambda: self)
+
+    InferenceDeployment.func_or_class = InferenceDeployment
