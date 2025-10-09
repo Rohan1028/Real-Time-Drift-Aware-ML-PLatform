@@ -1,4 +1,4 @@
-﻿from services.serving.app.canary import CanaryStrategy
+from services.serving.app.canary import CanaryStrategy
 
 
 def test_canary_probability_bounds():

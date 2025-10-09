@@ -1,4 +1,4 @@
-﻿from services.common.schemas import InferenceRequest, InferenceResponse
+from services.common.schemas import InferenceRequest, InferenceResponse
 
 
 def test_inference_request_schema():

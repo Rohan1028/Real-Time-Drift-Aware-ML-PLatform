@@ -1,4 +1,4 @@
-﻿from services.feature_service.feast_repo.feature_views import transaction_features
+from services.feature_service.feast_repo.feature_views import transaction_features
 
 
 def test_transaction_feature_view_schema():

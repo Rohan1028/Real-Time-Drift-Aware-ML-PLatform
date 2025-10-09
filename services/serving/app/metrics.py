@@ -1,4 +1,4 @@
-﻿from prometheus_client import Counter, Histogram
+from prometheus_client import Counter, Histogram
 
 REQUEST_LATENCY = Histogram(
     "serving_app_request_latency_seconds",

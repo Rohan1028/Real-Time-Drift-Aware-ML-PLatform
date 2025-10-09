@@ -1,4 +1,4 @@
-﻿import pytest
+import pytest
 
 from services.common.schemas import Event, event_json_schema
 

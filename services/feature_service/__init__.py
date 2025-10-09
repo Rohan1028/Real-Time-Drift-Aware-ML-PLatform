@@ -1,1 +1,1 @@
-﻿"""Feature store assets for the platform."""
+"""Feature store assets for the platform."""

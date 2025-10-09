@@ -29,9 +29,7 @@ def validate_metrics(
     auc = float(metrics.get("roc_auc", 0.0))
     avg_precision = float(metrics.get("avg_precision", 0.0))
 
-    auc_threshold = (
-        min_auc if min_auc is not None else float(os.getenv("MIN_ROC_AUC", "0.65"))
-    )
+    auc_threshold = min_auc if min_auc is not None else float(os.getenv("MIN_ROC_AUC", "0.65"))
     ap_threshold = (
         min_avg_precision
         if min_avg_precision is not None
@@ -47,13 +45,9 @@ def validate_metrics(
     )
 
     if auc < auc_threshold:
-        raise SystemExit(
-            f"roc_auc {auc:.3f} below threshold {auc_threshold:.3f}"
-        )
+        raise SystemExit(f"roc_auc {auc:.3f} below threshold {auc_threshold:.3f}")
     if avg_precision < ap_threshold:
-        raise SystemExit(
-            f"avg_precision {avg_precision:.3f} below threshold {ap_threshold:.3f}"
-        )
+        raise SystemExit(f"avg_precision {avg_precision:.3f} below threshold {ap_threshold:.3f}")
 
 
 if __name__ == "__main__":

@@ -11,9 +11,9 @@ from services.serving.app.metrics import REQUEST_COUNTER
 @pytest.mark.integration
 @pytest.mark.asyncio
 async def test_inference_pipeline(monkeypatch):
-    import ray
-    from ray import serve as ray_serve
     from types import SimpleNamespace
+
+    from ray import serve as ray_serve
 
     def _passthrough_deployment(*args, **kwargs):
         def decorator(cls):

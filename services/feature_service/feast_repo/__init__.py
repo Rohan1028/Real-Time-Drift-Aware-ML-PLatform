@@ -1,1 +1,1 @@
-﻿"""Feast repository definitions."""
+"""Feast repository definitions."""

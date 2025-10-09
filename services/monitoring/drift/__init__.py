@@ -1,1 +1,1 @@
-﻿"""Drift detection jobs."""
+"""Drift detection jobs."""

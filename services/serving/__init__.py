@@ -1,1 +1,1 @@
-﻿"""Ray Serve inference application."""
+"""Ray Serve inference application."""

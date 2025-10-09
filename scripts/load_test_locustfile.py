@@ -1,4 +1,4 @@
-﻿from locust import HttpUser, between, task
+from locust import HttpUser, between, task
 
 sample_payload = {
     "user_id": "user-123",

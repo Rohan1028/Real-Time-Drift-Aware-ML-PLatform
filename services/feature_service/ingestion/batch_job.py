@@ -1,4 +1,4 @@
-﻿import os
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 
 def run() -> None:
     configure_logging()
-    settings = get_settings()
+    get_settings()
     output = Path("data/sample/events.parquet")
     generator = SyntheticEventGenerator()
     events = [event.model_dump() for event in generator.stream(batch_size=500)]

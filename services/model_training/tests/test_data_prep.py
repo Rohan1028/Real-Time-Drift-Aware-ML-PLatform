@@ -1,4 +1,4 @@
-﻿from services.model_training.data_prep import load_training_frame, split_data
+from services.model_training.data_prep import load_training_frame, split_data
 
 
 def test_load_training_frame(tmp_path):

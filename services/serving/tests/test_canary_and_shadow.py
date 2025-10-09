@@ -69,7 +69,11 @@ async def test_shadow_invoker_runs_prediction(simple_event):
 def test_feature_service_fetches(monkeypatch, simple_event):
     from services.serving.app import feature_client
 
-    monkeypatch.setattr(feature_client, "FeatureStore", lambda repo_path: DummyStore({"transaction_amount": [0.25], "label": [0]}))
+    monkeypatch.setattr(
+        feature_client,
+        "FeatureStore",
+        lambda repo_path: DummyStore({"transaction_amount": [0.25], "label": [0]}),
+    )
     svc = FeatureService()
     features = svc.fetch(simple_event)
     assert features.amount_zscore == pytest.approx(0.25)
@@ -83,7 +87,9 @@ def test_feature_service_fallback(monkeypatch, simple_event):
         def get_online_features(self, *args, **kwargs):
             raise RuntimeError("boom")
 
-    monkeypatch.setattr(feature_client, "FeatureStore", lambda repo_path: BrokenStore({"transaction_amount": [0.9]}))
+    monkeypatch.setattr(
+        feature_client, "FeatureStore", lambda repo_path: BrokenStore({"transaction_amount": [0.9]})
+    )
     svc = FeatureService()
     features = svc.fetch(simple_event)
     assert features.amount_zscore == pytest.approx(simple_event.transaction_amount)

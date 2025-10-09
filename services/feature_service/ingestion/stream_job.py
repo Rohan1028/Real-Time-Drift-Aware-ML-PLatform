@@ -1,4 +1,4 @@
-﻿import json
+import json
 import time
 
 from kafka import KafkaConsumer
@@ -34,7 +34,9 @@ def main() -> None:
             store.write_to_online_store(
                 feature_view_name="transaction_features",
                 entity_rows=[{"user": event.user_id}],
-                feature_rows=[{"transaction_amount": event.transaction_amount, "label": event.label or 0}],
+                feature_rows=[
+                    {"transaction_amount": event.transaction_amount, "label": event.label or 0}
+                ],
             )
         time.sleep(1.0)
 

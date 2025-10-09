@@ -1,8 +1,8 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import datetime as dt
 import random
-from typing import Dict, Iterable, Iterator, List, Optional
+from typing import Iterable, Iterator
 from uuid import uuid4
 
 from .schemas import Event
@@ -11,14 +11,14 @@ from .schemas import Event
 class SyntheticEventGenerator:
     """Deterministic-ish generator for incoming transaction events."""
 
-    COUNTRIES: List[str] = ["US", "CA", "GB", "DE", "FR", "IN", "BR"]
-    DEVICES: List[str] = ["ios", "android", "web"]
+    COUNTRIES: list[str] = ["US", "CA", "GB", "DE", "FR", "IN", "BR"]
+    DEVICES: list[str] = ["ios", "android", "web"]
 
-    def __init__(self, seed: int = 42, drift: Optional[float] = None) -> None:
-        self.random = random.Random(seed)
+    def __init__(self, seed: int = 42, drift: float | None = None) -> None:
+        self.random = random.Random(seed)  # noqa: S311 - deterministic synthetic generator
         self.drift = drift or 0.0
 
-    def sample(self, user_id: Optional[str] = None) -> Event:
+    def sample(self, user_id: str | None = None) -> Event:
         amount = abs(self.random.gauss(80, 40))
         if self.drift:
             amount *= 1 + self.drift
@@ -43,5 +43,5 @@ class SyntheticEventGenerator:
         return min(base, 0.5)
 
 
-def events_to_dicts(events: Iterable[Event]) -> List[Dict[str, object]]:
+def events_to_dicts(events: Iterable[Event]) -> list[dict[str, object]]:
     return [event.model_dump(mode="json") for event in events]

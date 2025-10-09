@@ -62,7 +62,7 @@ Update the following variables in `env/aws.auto.tfvars`:
 project = "your-project-name"
 region  = "us-east-1"
 ml_bucket_name = "your-unique-bucket-name"
-postgres_password = "your-secure-password"
+postgres_password = "your-secure-password" <!-- pragma: allowlist secret -->
 environment = "dev"
 
 # Optional: SSL Certificate ARN for HTTPS
@@ -248,7 +248,7 @@ cloudwatch.put_metric_data(
 
 Access Grafana at `https://<load-balancer-dns>/grafana`:
 - Default username: `admin`
-- Default password: `admin`
+- Default password: `admin` <!-- pragma: allowlist secret -->
 
 Pre-configured dashboards include:
 - Platform overview

@@ -1,6 +1,5 @@
 from feast import FileSource
 
-
 events_source = FileSource(
     path="data/sample/events.parquet",
     timestamp_field="event_ts",

@@ -1,7 +1,7 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -23,7 +23,7 @@ class Event(BaseModel):
         return value
 
     @model_validator(mode="after")
-    def check_future_timestamp(self) -> "Event":
+    def check_future_timestamp(self) -> Event:
         if self.event_ts is not None and self.event_ts > datetime.utcnow().astimezone():
             raise ValueError("event_ts cannot be in the future")
         return self
@@ -33,8 +33,8 @@ class FeatureVector(BaseModel):
     user_id: str
     transaction_amount: float
     amount_zscore: float | None = None
-    country_onehot: Dict[str, float] | None = None
-    device_onehot: Dict[str, float] | None = None
+    country_onehot: dict[str, float] | None = None
+    device_onehot: dict[str, float] | None = None
     event_ts: datetime
 
 
@@ -52,5 +52,5 @@ class InferenceResponse(BaseModel):
     trace_id: str | None = None
 
 
-def event_json_schema() -> Dict[str, Any]:
+def event_json_schema() -> dict[str, Any]:
     return Event.model_json_schema()

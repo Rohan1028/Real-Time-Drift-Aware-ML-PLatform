@@ -1,4 +1,4 @@
-﻿project = "mlops-demo"
+project = "mlops-demo"
 region  = "us-east-1"
 ml_bucket_name = "mlops-demo-artifacts-$(date +%s)"
 enable_gcp = false
@@ -11,7 +11,7 @@ max_size = 5
 desired_capacity = 2
 
 # Database Configuration
-postgres_password = "your-secure-password-here"
+postgres_password = "your-secure-password-here"  # pragma: allowlist secret
 postgres_instance_class = "db.t3.micro"
 redis_node_type = "cache.t3.micro"
 

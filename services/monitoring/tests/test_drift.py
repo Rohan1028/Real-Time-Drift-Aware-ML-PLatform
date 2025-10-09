@@ -1,5 +1,3 @@
-﻿from pathlib import Path
-
 import pytest
 
 from services.monitoring.drift.run_evidently import generate_report, load_data

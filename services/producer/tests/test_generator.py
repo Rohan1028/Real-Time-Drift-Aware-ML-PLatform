@@ -1,4 +1,4 @@
-﻿from services.common.data import SyntheticEventGenerator
+from services.common.data import SyntheticEventGenerator
 
 
 def test_generator_produces_labels():

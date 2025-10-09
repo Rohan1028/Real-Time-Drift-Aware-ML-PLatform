@@ -1,1 +1,1 @@
-﻿"""Synthetic event producer."""
+"""Synthetic event producer."""

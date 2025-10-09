@@ -67,6 +67,7 @@ ignore = ["E203", "E501"]
 [tool.ruff.per-file-ignores]
 "docs/**" = ["S101"]
 "scripts/**" = ["S101"]
+"**/tests/**" = ["S101"]
 
 [tool.pytest.ini_options]
 testpaths = ["services", "scripts"]

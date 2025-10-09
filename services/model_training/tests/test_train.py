@@ -1,4 +1,4 @@
-﻿from services.model_training.train import build_pipeline
+from services.model_training.train import build_pipeline
 
 
 def test_build_pipeline_has_model():

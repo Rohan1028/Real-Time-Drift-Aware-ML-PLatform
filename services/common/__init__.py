@@ -1,1 +1,1 @@
-﻿"""Common utilities shared across services."""
+"""Common utilities shared across services."""

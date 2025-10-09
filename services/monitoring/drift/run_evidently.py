@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Tuple
 
 import pandas as pd
 from evidently.metric_preset import DataDriftPreset
@@ -21,7 +20,7 @@ def _read_dataset(path: Path) -> pd.DataFrame:
     return pd.read_csv(path, parse_dates=["event_ts"])
 
 
-def load_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
+def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load reference and current frames for drift analysis.
 
     Environment variables DRIFT_REFERENCE_PATH and DRIFT_CURRENT_PATH can override
