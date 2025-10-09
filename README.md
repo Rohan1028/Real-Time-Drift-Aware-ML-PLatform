@@ -191,9 +191,9 @@ print(resp.json())
 ## Quick Tour
 
 - Architecture diagram – `diagrams/architecture.png`
-- Core code entry points – training (`services/model_training/train.py`), serving (`services/serving/app/main.py`), drift job (`services/monitoring/drift/run_evidently.py`)
-- Canary/shadow logic – `services/serving/app/canary.py`, `services/serving/app/shadow.py`, `services/serving/app/rollback.py`
-- Grafana dashboards – `docs/dashboards/`, `infra/docker/grafana/dashboards/`
+- Core code entry points - training (`services/model_training/train.py`), serving (`services/serving/app/main.py`), drift job (`services/monitoring/drift/run_evidently.py`)
+- Canary/shadow logic - `services/serving/app/canary.py`, `services/serving/app/shadow.py`, `services/serving/app/rollback.py`
+- Grafana dashboards - `docs/dashboards/`, `infra/docker/grafana/dashboards/`
 - CI workflows – `ci/github/workflows/ci.yml`, `ci/github/workflows/nightly-drift.yml`
 - Terraform & GitOps references – `infra/terraform/`, `manifests/`
 - Operations Runbook – `docs/runbook.md`
