@@ -1,4 +1,4 @@
-﻿import json
+import json
 from pathlib import Path
 
 import mlflow
@@ -6,6 +6,7 @@ from mlflow.tracking import MlflowClient
 
 from services.common.config import get_settings
 from services.common.logging import configure_logging, get_logger
+from services.common.mlflow_utils import configure_mlflow_env
 
 logger = get_logger(__name__)
 
@@ -13,6 +14,7 @@ logger = get_logger(__name__)
 def evaluate() -> None:
     configure_logging()
     settings = get_settings()
+    configure_mlflow_env(settings)
     mlflow.set_tracking_uri(settings.mlflow_tracking_uri)
     client = MlflowClient()
     metrics_path = Path("services/model_training/latest_metrics.json")
@@ -27,9 +29,7 @@ def evaluate() -> None:
         logger.warning("No production model registered; accepting candidate.")
         return
     if candidate_metrics["roc_auc"] + 1e-5 < prod_auc:
-        raise SystemExit(
-            f"Candidate AUC {candidate_metrics['roc_auc']:.3f} < prod {prod_auc:.3f}"
-        )
+        raise SystemExit(f"Candidate AUC {candidate_metrics['roc_auc']:.3f} < prod {prod_auc:.3f}")
     logger.info("Candidate passes gate (%.3f >= %.3f)", candidate_metrics["roc_auc"], prod_auc)
 
 

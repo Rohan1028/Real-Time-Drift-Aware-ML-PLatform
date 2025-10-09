@@ -1,15 +1,9 @@
-﻿project: drift_platform
+project: drift_platform
 registry: data/registry.db
 provider: local
 offline_store:
-  type: feast_postgres.PostgreSQLOfflineStore
-  host: ${FEAST_OFFLINE_STORE_HOST:postgres}
-  port: ${FEAST_OFFLINE_STORE_PORT:5432}
-  database: ${FEAST_OFFLINE_STORE_DATABASE:feast}
-  db_schema: public
-  user: ${FEAST_OFFLINE_STORE_USER:feast}
-  password: ${FEAST_OFFLINE_STORE_PASSWORD:feast}
+  type: file
 online_store:
   type: redis
-  connection_string: redis://${REDIS_HOST:redis}:${REDIS_PORT:6379}
+  connection_string: localhost:6379
 entity_key_serialization_version: 2

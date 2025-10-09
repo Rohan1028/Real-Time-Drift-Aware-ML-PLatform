@@ -38,6 +38,7 @@ opentelemetry-sdk = "^1.23.0"
 opentelemetry-exporter-otlp = "^1.23.0"
 opentelemetry-instrumentation-fastapi = "^0.44b0"
 prometheus-fastapi-instrumentator = "^6.1.0"
+psycopg2-binary = "^2.9.9"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.2"

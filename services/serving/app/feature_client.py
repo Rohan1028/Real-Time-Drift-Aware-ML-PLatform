@@ -1,4 +1,4 @@
-﻿from typing import Dict
+from typing import Dict
 
 from feast import FeatureStore
 
@@ -17,12 +17,17 @@ class FeatureService:
     def fetch(self, event: Event) -> FeatureVector:
         try:
             features: Dict[str, Dict[str, float]] = self.store.get_online_features(
-                features=[f"transaction_features:{name}" for name in ("transaction_amount", "label")],
-                entity_rows=[{"user": event.user_id}],
+                features=[
+                    f"transaction_features:{name}" for name in ("transaction_amount", "label")
+                ],
+                entity_rows=[{"user_id": event.user_id}],
             ).to_dict()
         except Exception as exc:  # pragma: no cover - fallback path
             logger.warning("Falling back to raw features due to: %s", exc)
-            features = {"transaction_amount": [event.transaction_amount], "label": [event.label or 0]}
+            features = {
+                "transaction_amount": [event.transaction_amount],
+                "label": [event.label or 0],
+            }
         return FeatureVector(
             user_id=event.user_id,
             transaction_amount=event.transaction_amount,

@@ -1,6 +1,8 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
+import os
+import sys
 from pathlib import Path
 
 import mlflow
@@ -12,7 +14,8 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from services.common.config import get_settings
 from services.common.logging import configure_logging, get_logger
-from .data_prep import load_training_frame, split_data
+from services.common.mlflow_utils import configure_mlflow_env
+from services.model_training.data_prep import load_training_frame, split_data
 
 logger = get_logger(__name__)
 
@@ -36,8 +39,15 @@ def build_pipeline() -> Pipeline:
 
 
 def train() -> None:
-    configure_logging()
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8")
+        except Exception:
+            os.environ.setdefault("PYTHONIOENCODING", "utf-8")
     settings = get_settings()
+    configure_mlflow_env(settings)
+
+    configure_logging()
     mlflow.set_tracking_uri(settings.mlflow_tracking_uri)
     features, target = load_training_frame()
     X_train, X_test, y_train, y_test = split_data(features, target)

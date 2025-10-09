@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Any
 
-import mlflow.pyfunc
+import mlflow.sklearn
 
 from services.common.logging import get_logger
 
@@ -16,11 +16,11 @@ class ModelLoadError(RuntimeError):
 def load_model(model_uri: str) -> Any:
     logger.info("Loading model from %s", model_uri)
     try:
-        return mlflow.pyfunc.load_model(model_uri=model_uri)
+        return mlflow.sklearn.load_model(model_uri=model_uri)
     except Exception as exc:  # pragma: no cover - dedicated failure test handles this
         logger.error("Failed to load model from %s: %s", model_uri, exc)
         raise ModelLoadError(f"Unable to load model at {model_uri}") from exc
 
 
 def staging_model_uri() -> str:
-    return "models:/fraud-detector/Staging"
+    return "models:/fraud-detector@Staging"

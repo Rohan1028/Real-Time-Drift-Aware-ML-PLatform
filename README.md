@@ -77,7 +77,39 @@ Stop everything with `make compose-down`.
 
 - OpenTelemetry instrumentation (`services/common/tracing.py`, `services/monitoring/tracing/otel_init.py`) emits spans for ingestion + inference.
 - Grafana dashboards (`docs/dashboards/*.json`, `infra/docker/grafana/dashboards/*.json`) surface SLOs, drift risk, traffic mix.
-- Evidently reports captured under `services/monitoring/drift/reports/` and linked in Grafana “Static” panel.
+- Evidently reports captured under `services/monitoring/drift/reports/` and linked in Grafana "Static" panel.
+
+## Live Demo Gallery
+
+Experience snapshots from the local stack (captured under `Images/`):
+
+### Inference & Feature Store
+
+- `make feast-apply` and `make materialize` bring Feast assets online  
+  ![Feast materialization](Images/make%20materialize.png)
+- Live prediction response from `http://localhost:8000/predict`  
+  ![FastAPI inference response](Images/FastAPI%20inference%20response.png)
+
+### Observability Dashboards
+
+- Grafana Inference SLO dashboard tracking latency and request mix  
+  ![Grafana Inference SLO](Images/Grafana%20-%20Inference%20SLO%20Dashboard.png)
+- Prometheus query for serving latency histogram  
+  ![Prometheus latency query](Images/Prometheus%20-%20histogram_quantile(0.95,%20rate(serving_app_request_latency_seconds_bucket%5B1m%5D)).png)
+
+### Model Lifecycle & Artifacts
+
+- MLflow run showing registered model metrics  
+  ![MLflow run](Images/mlflow%20train%20runs.png)
+- MinIO object browser with exported model artifacts  
+  ![MinIO artifacts](Images/MiniIO%20-%20Artifacts-model.png)
+
+### Load & Streaming
+
+- Headless Locust run exercising `/predict`  
+  ![Locust summary](Images/locust-summary.png)
+- Redpanda topics receiving synthetic transactions  
+  ![Redpanda topics](Images/Redpanda%20-%20Topics.png)
 
 ## Automation & CI
 

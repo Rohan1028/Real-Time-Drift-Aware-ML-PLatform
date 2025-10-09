@@ -1,11 +1,13 @@
-﻿POETRY ?= poetry
+ifeq ($(strip $(POETRY)),)
+POETRY := poetry
+endif
 PYTHON ?= python
 COMPOSE ?= docker compose
 COMPOSE_FILE ?= infra/docker/docker-compose.yaml
 
 export PYTHONDONTWRITEBYTECODE = 1
 
-.PHONY: help bootstrap compose-up compose-down data feast-apply materialize train register serve producer drift-report load-test smoke lint test test-unit test-integration test-regression fmt fmt-check
+.PHONY: help bootstrap compose-up compose-down data feast-apply materialize train register evaluate serve producer drift-report load-test smoke lint test test-unit test-integration test-regression fmt fmt-check
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -34,6 +36,9 @@ train: ## Train model and log to MLflow
 
 register: ## Register best model to MLflow Staging
 	$(POETRY) run $(PYTHON) services/model_training/register.py
+
+evaluate: ## Evaluate candidate model against production gate
+	$(POETRY) run $(PYTHON) services/model_training/evaluate.py
 
 serve: ## Run Ray Serve API locally
 	$(POETRY) run $(PYTHON) services/serving/app/main.py

@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://grafana.com/schemas/dashboard/v1.json",
   "title": "Inference SLO Dashboard",
   "uid": "infra-inference-slo",
