@@ -1,6 +1,6 @@
 ﻿# Real-Time Drift-Aware ML Platform
 
-![CI](https://img.shields.io/github/actions/workflow/status/example/mlops-drift-platform/ci.yml?label=CI&logo=github) ![Code style: ruff+black](https://img.shields.io/badge/style-ruff%2Bblack-blue) ![License: MIT](https://img.shields.io/badge/license-MIT-green)
+![CI](https://img.shields.io/github/actions/workflow/status/Rohan1028/Real-Time-Drift-Aware-ML-PLatform/ci.yml?label=CI&logo=github) ![Code style: ruff+black](https://img.shields.io/badge/style-ruff%2Bblack-blue) ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
 > A runnable reference monorepo showcasing a real-time drift-aware ML platform. Local-first, production-inspired, cloud-ready stubs.
 
