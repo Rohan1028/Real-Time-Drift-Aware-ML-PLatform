@@ -98,6 +98,14 @@ Need a lightweight cloud pitch? The platform runs end-to-end on a single AWS Arm
   ![MLflow runs](Images/MLflow.png)  
   ![Grafana SLO dashboard](Images/Grafana%20-%20Inference%20SLO%20Dashboard%20-%20p95%20latency.png)
 
+## Right-Sizing & Cost Controls
+
+- Run only what you need: `docker compose -f infra/docker/docker-compose.yaml up -d postgres redis minio minio-setup mlflow` keeps persistence + model metadata while skipping observability extras like Prometheus, Grafana, the OTEL collector, or Redpanda Console. Add them back selectively when you need dashboards or traces.
+- If streaming is optional, leave Redpanda and `make producer` turned off; rely on `make data` + Feast materialization to refresh features during local iterations and CI.
+- Treat Evidently drift jobs and load testing (`make drift-report`, `make load-test`) as on-demand steps; comment out `ci/github/workflows/nightly-drift.yml` if it is burning minutes for teams without 24/7 monitors.
+- After demos, `make compose-down` to free CPU/RAM; in AWS, `sudo systemctl disable --now mlops-platform.service` prevents the long-lived unit (see `infra/terraform/modules/ec2/user_data.sh`) from restarting the full stack automatically.
+- Capture any deviations (disabled services, smaller compose files, alternative storage endpoints) in `docs/runbook.md` so others inherit the same cost-conscious footprint.
+
 ## Services & Ports
 
 | Component             | Port | Notes |
