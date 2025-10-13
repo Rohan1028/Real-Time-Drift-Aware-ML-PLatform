@@ -2,7 +2,7 @@
 
 ![CI](https://img.shields.io/github/actions/workflow/status/Rohan1028/Real-Time-Drift-Aware-ML-PLatform/ci.yml?label=CI&logo=github) ![Code style: ruff+black](https://img.shields.io/badge/style-ruff%2Bblack-blue) ![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
-> A runnable reference monorepo showcasing a real-time drift-aware ML platform. Local-first, production-inspired, cloud-ready stubs.
+> A runnable reference monorepo showcasing a real-time drift-aware ML platform. Local-first for fast iteration, plus a proven single-instance AWS deployment for recruiters and demos.
 
 ```mermaid
 graph LR
@@ -69,6 +69,35 @@ graph LR
 
 Stop everything with `make compose-down`.
 
+## AWS Deployment (single t4g.micro)
+
+Need a lightweight cloud pitch? The platform runs end-to-end on a single AWS Arm instance (≈$10–$15/month) with Docker services and the FastAPI inference process supervised by `systemd`.
+
+1. Provision an Ubuntu 22.04 `t4g.micro`, attach an Elastic IP, and lock security-group ingress to SSH + the ports you want to expose (e.g., 8000 for the API).  
+   ![EC2 instance view](Images/Aws%20Instance.png)
+2. SSH in, install Docker, Poetry, and clone this repo under `/opt/mlops-platform`.  
+   `poetry install --without dev && docker compose -f infra/docker/docker-compose.yaml up -d`
+3. Seed data, train, and register a baseline model:
+   ```bash
+   make data && make feast-apply && make materialize
+   make train && make register
+   ```
+4. Run the inference API under `systemd` so it restarts on boot (unit file included in the repo README snippets).  
+   ![systemd service](Images/Systemmd.png)
+5. Point Prometheus at `172.17.0.1:8000`, generate traffic via the sample script, and refresh Grafana/MLflow over an SSH tunnel to confirm observability.  
+   ![Security group rules](Images/Security%20Group%20Inbound%20Rules.png)
+
+### Cloud validation artifacts
+
+- Public health & prediction responses from Windows client  
+  ![Terminal health check](Images/Terminal%20Health.png)  
+  ![Invoke-WebRequest prediction](Images/Predict.png)
+- Docker backing services up on the EC2 host  
+  ![Docker status](Images/Docker%20Status.png)
+- MLflow + Grafana dashboards accessed through SSH port forwarding (localhost tabs originate from the EC2 host)  
+  ![MLflow runs](Images/MLflow.png)  
+  ![Grafana SLO dashboard](Images/Grafana%20-%20Inference%20SLO%20Dashboard%20-%20p95%20latency.png)
+
 ## Services & Ports
 
 | Component             | Port | Notes |
@@ -122,6 +151,15 @@ Experience snapshots from the local stack (captured under `Images/`):
   ![Grafana Inference SLO](Images/Grafana%20-%20Inference%20SLO%20Dashboard.png)
 - Prometheus query for serving latency histogram  
   ![Prometheus latency query](Images/Prometheus%20-%20histogram_quantile(0.95,%20rate(serving_app_request_latency_seconds_bucket%5B1m%5D)).png)
+
+### Cloud Deployment Highlights
+
+- Systemd-managed FastAPI service on EC2  
+  ![systemd](Images/Systemmd.png)
+- Public `/predict` validation via PowerShell  
+  ![Remote prediction](Images/Predict.png)
+- Grafana p95 latency after generating traffic on the instance  
+  ![Grafana SLO](Images/Grafana%20-%20Inference%20SLO%20Dashboard%20-%20p95%20latency.png)
 
 ### Model Lifecycle & Artifacts
 
